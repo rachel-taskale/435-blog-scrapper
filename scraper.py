@@ -21,13 +21,8 @@ def read_html():
     # call the check_if_updated text file method
     blog_idx_to_send = check_if_updated(len(df))
     blog_updates_log = df.iloc[1:(blog_idx_to_send + 1)]
-    # print(blog_updates_log)
 
-    for i in blog_updates_log:
-        print("blog update" + str(i))
-    # return the data
     return blog_updates_log
-
 
 # function to check if the blog was updated through reading the file
 # if blog is updated then will write new table length to the text file

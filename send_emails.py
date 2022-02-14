@@ -5,55 +5,60 @@ from datetime import date
 def format_email(body_text):
     final_body_text = ''
     i = 0
-    for i in body_text:
-        print(i)
-        print("hi" + str(i) + "\n")
-        # string_txt = i[1:len(i)]
-        # final_body_text += string_txt + "\n"
-        # print(i)
+    for i in body_text[0]:
+        date_txt = i[1:10]
+        string_txt = i[11:len(i)]
+        final_body_text += date_txt + '\n'
+        final_body_text += string_txt + '\n'
+        final_body_text += '\n'
     return final_body_text
 
 
-def create_email(body_text, emails):
+# Thank you, Patrick O'Toole :3
+# Accepts file formatted in:
+# Variable=value
+# returns python dictionary
+def load_creds(env_file):
+    f = open(env_file)
+    lines = f.readlines()
+    env_vars = {}
+    for line in lines:
+        var = line.split("=")
+        final = [elt.strip() for elt in var]
+        env_vars[final[0]] = final[1]
+    f.close()
+    return env_vars
 
-    gmail_user = 'cmsc435digest@gmail.com'
-    gmail_password = '5QGmC9KnMkKumMb'
+
+def create_email(body_text, emails):
+    # open the env file and get credentials
+    creds = load_creds(".env")
+    # load values into variables
+    gmail_user = creds["USERNAME"]
+    gmail_password = creds["PASSWORD"]
 
     sent_from = gmail_user
     to = emails
-    subject = 'CMSC435 Update' + date.today().strftime("%m-%d-%Y")
+    subject = 'CMSC435 Update on ' + date.today().strftime("%m-%d-%Y")
     body = format_email(body_text)
-    print(body_text)
     print(body)
 
-    email_text = """\
+    email_text = """
     From: %s
     To: %s
     Subject: %s
 
     %s
     """ % (sent_from, ", ".join(to), subject, body)
-    #
-    # try:
-    #
-    #     server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-    #     print("1 line")
-    #     server.ehlo()
-    #     print(gmail_user)
-    #     print(gmail_password)
-    #     server.login(gmail_user, gmail_password)
-    #     print("3 line")
-    #     server.sendmail(sent_from, to, email_text)
-    #     print("4 line")
-    #     server.close()
-    #     print('Email sent!')
-    # except:
-    #     print('Something went wrong')
-# import smtplib
 
-
-# def create_email(body_text, emails):
-#     server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-#     server.login("cmsc435digest@gmail.com", "57a72P98YJF3vxR")
-#     server.sendmail("cmsc435digest@gmail.com", "racheltaskale@gmail.com", "hi, from python")
-#     server.quit()
+    # Send email to email list
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.ehlo()
+        print("going to login now")
+        server.login(gmail_user, gmail_password)
+        server.sendmail(sent_from, to, email_text)
+        server.close()
+        print('Email sent!')
+    except:
+        print('Something went wrong')

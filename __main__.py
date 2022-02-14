@@ -5,11 +5,15 @@ from threading import Thread
 
 
 def func():
-    emails = ['racheltaskale@gmail.com']
+    emails = ['racheltaskale@gmail.com', 'patrickotoole49@gmail.com']
     blog_updates_log = read_html()
-    print("Checked_for_updates")
+    counter = 0
+    for i in blog_updates_log:
+        print("counter: " + str(counter))
+        print(i)
+        counter += 1
+
     create_email(blog_updates_log, emails)
-    print("made it here")
 
 
 if __name__ == '__main__':
