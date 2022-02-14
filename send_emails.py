@@ -1,16 +1,25 @@
 import smtplib
 from datetime import date
+import markdown
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.message import EmailMessage
 
 
-def format_email(body_text):
+def format_email(body_text, url):
     final_body_text = ''
     i = 0
+    final_body_text += markdown.markdown("##CMSC435 Blog Updates")
+    final_body_text += markdown.markdown('***')
     for i in body_text[0]:
         date_txt = i[1:10]
         string_txt = i[11:len(i)]
-        final_body_text += date_txt + '\n'
-        final_body_text += string_txt + '\n'
-        final_body_text += '\n'
+        final_body_text += markdown.markdown('###'+date_txt + '\n')
+        final_body_text += markdown.markdown(string_txt + '\n')
+        final_body_text += markdown.markdown('\n')
+    final_body_text += markdown.markdown('***')
+    final_body_text += markdown.markdown('**'+"Find the blog posts here: " + url + '**')
+
     return final_body_text
 
 
@@ -36,28 +45,23 @@ def create_email(body_text, emails):
     # load values into variables
     gmail_user = creds["USERNAME"]
     gmail_password = creds["PASSWORD"]
+    msg = EmailMessage()
+    body = format_email(body_text, creds["URL"])
 
-    sent_from = gmail_user
-    to = emails
-    subject = 'CMSC435 Update on ' + date.today().strftime("%m-%d-%Y")
-    body = format_email(body_text)
-    print(body)
-
-    email_text = """
-    From: %s
-    To: %s
-    Subject: %s
-
-    %s
-    """ % (sent_from, ", ".join(to), subject, body)
-
-    # Send email to email list
+    multipart_msg = MIMEMultipart("alternative")
+    msg["SUBJECT"] = 'CMSC435 Update on ' + date.today().strftime("%m-%d-%Y")
+    msg["FROM"] = gmail_user
+    msg["TO"] = emails
+    html = markdown.markdown(body)
+    main_txt = MIMEText(html, "html")
+    multipart_msg.attach(main_txt)
+    msg.set_content(main_txt)
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.ehlo()
         print("going to login now")
         server.login(gmail_user, gmail_password)
-        server.sendmail(sent_from, to, email_text)
+        server.send_message(msg)
         server.close()
         print('Email sent!')
     except:
