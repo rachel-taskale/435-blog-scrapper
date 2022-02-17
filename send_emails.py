@@ -1,9 +1,10 @@
 import smtplib
-from datetime import date
+from datetime import date, datetime
 import markdown
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.message import EmailMessage
+from pytz import timezone
 
 
 def format_email(body_text, url):
@@ -12,10 +13,13 @@ def format_email(body_text, url):
     final_body_text += markdown.markdown("##CMSC435 Blog Updates")
     final_body_text += markdown.markdown('***')
     for i in body_text[0]:
-        date_txt = i[1:10]
+        date_txt = datetime.strptime(i[0:10], '%Y-%m-%d')
+        date_string = date_txt.strftime("%m-%d-%Y")
         string_txt = i[11:len(i)]
-        final_body_text += markdown.markdown('###'+date_txt + '\n')
+        final_body_text += markdown.markdown('###' + date_string + '\n')
         final_body_text += markdown.markdown(string_txt + '\n')
+        print(final_body_text)
+        print(type(final_body_text))
         final_body_text += markdown.markdown('\n')
     final_body_text += markdown.markdown('***')
     final_body_text += markdown.markdown('**'+"Find the blog posts here: " + url + '**')
@@ -49,7 +53,8 @@ def create_email(body_text, emails):
     body = format_email(body_text, creds["URL"])
 
     multipart_msg = MIMEMultipart("alternative")
-    msg["SUBJECT"] = 'CMSC435 Update on ' + date.today().strftime("%m-%d-%Y")
+    est = timezone('EST')
+    msg["SUBJECT"] = 'CMSC435 Update on ' + date.today().strftime("%m-%d-%Y") + " as of " + datetime.now(est).strftime("%I:%M:%S %p")
     msg["FROM"] = gmail_user
     msg["TO"] = emails
     html = markdown.markdown(body)

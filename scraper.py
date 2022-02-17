@@ -3,10 +3,6 @@ import smtplib
 from datetime import date
 
 
-# Parameters: the length of the website when we just checked it
-# Output: the number of new blog posts
-
-
 # Function to check
 def read_html():
     pd.set_option('display.max_colwidth', None)
@@ -23,6 +19,7 @@ def read_html():
     blog_updates_log = df.iloc[1:(blog_idx_to_send + 1)]
 
     return blog_updates_log
+
 
 # function to check if the blog was updated through reading the file
 # if blog is updated then will write new table length to the text file
